@@ -33,11 +33,8 @@ private:
 	///Melee Variables///
 
 	float AttackTimer = 0.f;
-	//bool Attacking = false;
 	bool Morphing = false;
 	bool Cancelling = false;
-	//FString ActiveAttack;
-	//FTimerHandle TH_AttackTimer;
 
 	enum AttackList { LeftLightAttack, RightLightAttack, TopLightAttack, LeftHeavyAttack, RightHeavyAttack, TopHeavyAttack, ZoneAttack, GuardBreak, Block};
 
@@ -45,11 +42,9 @@ private:
 
 	enum AttackDirection { Left, Top, Right };
 
-	//bool[] ComboStore = new bool[3];
 	AttackType ComboChain[3];
 	FString ComboChainString;
 
-	//AttackType LLL[3] = {Light, Heavy, Light};
 	FString LLLString[3] = { "Light", "Light", "Light" };
 
 	FString LLL = "LLL";
@@ -60,7 +55,6 @@ private:
 	bool IsCombo = false;
 	int combocounter = 0;
 	bool ChangingDirection = false;
-	//AttackDirection ActiveAttackDirection;
 
 	bool DealingDamage = false;
 
@@ -76,10 +70,6 @@ public:
 	ALothair();
 
 	AttackDirection ActiveAttackDirection;
-	//FString ActiveAttackDirectionString;
-
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
-	//bool Attacking = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 		bool Attacking = false;
@@ -218,7 +208,6 @@ private:
 	void FireReleased();
 	void SecondaryFireReleased();
 	void LaunchSmoke();
-	//void MeleeAttack();
 	UFUNCTION(BlueprintCallable)
 	void Reload();
 	void SetActiveWeaponPrimary();

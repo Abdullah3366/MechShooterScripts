@@ -224,14 +224,14 @@ void ALothair::Fire()
 
 		if (ActiveMode == "Combat")
 		{
-			//AttackOn = true;
+			AttackOn = true;
 			if (Attacking == false)
 			{
 				//UE_LOG(LogTemp, Warning, TEXT("Light Melee Attack"));
 				combocounter = 1;
 				ActivateLightAttack(combocounter);
 				ComboChain[0] = Light;
-				//ComboChainString = "Light";
+				ComboChainString = "Light";
 				ComboChainString.AppendChar('L');
 			}
 
@@ -246,7 +246,7 @@ void ALothair::Fire()
 						Morphing = true;
 						ActivateLightAttack(combocounter);
 						ComboChain[0] = Light;
-						//ComboChainString[0] = "Light";
+						ComboChainString[0] = "Light";
 					}
 					if (ActiveAttack == RightHeavyAttack && (ActiveAttackDirection == Left || ActiveAttackDirection == Top))
 					{
@@ -254,7 +254,7 @@ void ALothair::Fire()
 						Morphing = true;
 						ActivateLightAttack(combocounter);
 						ComboChain[0] = Light;
-						//ComboChainString[0] = "Light";
+						ComboChainString[0] = "Light";
 					}
 					if (ActiveAttack == TopHeavyAttack && (ActiveAttackDirection == Right || ActiveAttackDirection == Left))
 					{
