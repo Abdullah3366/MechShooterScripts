@@ -21,6 +21,23 @@ public:
 	AGun();
 	UPROPERTY(BlueprintReadWrite)FVector End;
 
+	virtual void Tick(float DeltaTime) override;
+
+	void GunCoolDownFinished();
+	void GunReloadFinished();
+	void Fire();
+	void Reload();
+
+	bool ShotFired;
+
+	FTimerHandle TH_GunCoolDown;
+	FTimerHandle TH_GunReloading;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character")
+	int CurrentAmmo = 0;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Time", meta = (AllowPrivateAccess = "True"))
+	float ReloadTime = 2.f;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -38,26 +55,6 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Time", meta = (AllowPrivateAccess = "True"))
 	float GunCoolDown = 1.f;
-
-
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
-	void GunCoolDownFinished();
-	void GunReloadFinished();
-	void Fire();
-	void Reload();
-
-	bool ShotFired;
-
-	FTimerHandle TH_GunCoolDown;
-	FTimerHandle TH_GunReloading;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character")
-	int CurrentAmmo = 0;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Time", meta = (AllowPrivateAccess = "True"))
-	float ReloadTime = 2.f;
 
 private:
 	UPROPERTY(EditDefaultsOnly)

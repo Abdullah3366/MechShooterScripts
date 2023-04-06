@@ -21,9 +21,9 @@ class IRONVALIANT_API ALothair : public AMechBase
 private:
 
 	UPROPERTY(EditAnywhere)
-		float PanzerBoostSpeed;
+	float PanzerBoostSpeed;
 	UPROPERTY(EditAnywhere)
-		float PanzerBoostAcceleration;
+	float PanzerBoostAcceleration;
 		
 	float RightDirBuffer = 0.f;
 	float LeftDirBuffer = 0.f;
@@ -65,7 +65,74 @@ private:
 	float ZoneTimer = 0;
 	bool checkzone = false;
 
+
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
 public:
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character")
+	int ActiveWeapon = 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character")
+	FString ActiveMode = "Ranged";
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character")
+	FString ActiveWeaponName = "Active Weapon = Main Gun";
+		
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Melee")
+	float InputDeadZone = 10.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Melee")
+	float StunTime = 3.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon", meta = (AllowPrivateAccess = "True"))
+	AGun* PrimaryWeapon;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon", meta = (AllowPrivateAccess = "True"))
+	ARocketLauncher* SecondaryWeapon;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon", meta = (AllowPrivateAccess = "True"))
+	ASmokeLauncher* SmokeLauncher;
+
+
+	bool Blocking = false;
+
+	UFUNCTION(BlueprintCallable)
+	void Fire();
+
+	void SecondaryFire();
+	void FireReleased();
+	void SecondaryFireReleased();
+	void LaunchSmoke();
+
+	UFUNCTION(BlueprintCallable)
+	void Reload();
+
+	void SetActiveWeaponPrimary();
+	void SetActiveWeaponSecondary();
+	void SwitchMode();
+
+	//Melee Functions//
+
+	void ActivateLightAttack(int ComboCounter);
+	void ActivateHeavyAttack();
+	void ActivateZoneAttack();
+	void CancelAttack();
+	void ActivateGuardBreak();
+	void ActivateBlockParry();
+	bool CheckParry();
+	void GetStunned();
+	void TestCombo();
+
+
+	bool Stunned = false;
+	float StunTimer = 0.f;
 
 	ALothair();
 
@@ -143,45 +210,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 		UAnimMontage* AMLightLightCombo;
 
-
-
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character")
-		int ActiveWeapon = 1;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character")
-		FString ActiveMode = "Ranged";
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character")
-		FString ActiveWeaponName = "Active Weapon = Main Gun";
-		
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Melee")
-	float InputDeadZone = 10.f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Melee")
-	float StunTime = 3.f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon", meta = (AllowPrivateAccess = "True"))
-	AGun* PrimaryWeapon;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon", meta = (AllowPrivateAccess = "True"))
-	ARocketLauncher* SecondaryWeapon;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon", meta = (AllowPrivateAccess = "True"))
-	ASmokeLauncher* SmokeLauncher;
-
-
-	bool Blocking = false;
-
 private:
 
 	UPROPERTY(EditDefaultsOnly)
@@ -199,34 +227,4 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character", meta = (AllowPrivateAccess = "True"))
 	ALothairAxe* Axe;
 
-
-	public:
-
-    UFUNCTION(BlueprintCallable)
-	void Fire();
-	void SecondaryFire();
-	void FireReleased();
-	void SecondaryFireReleased();
-	void LaunchSmoke();
-	UFUNCTION(BlueprintCallable)
-	void Reload();
-	void SetActiveWeaponPrimary();
-	void SetActiveWeaponSecondary();
-	void SwitchMode();
-
-	//Melee Functions//
-
-	void ActivateLightAttack(int ComboCounter);
-	void ActivateHeavyAttack();
-	void ActivateZoneAttack();
-	void CancelAttack();
-	void ActivateGuardBreak();
-	void ActivateBlockParry();
-	bool CheckParry();
-	void GetStunned();
-	void TestCombo();
-
-
-	bool Stunned = false;
-	float StunTimer = 0.f;
 };
