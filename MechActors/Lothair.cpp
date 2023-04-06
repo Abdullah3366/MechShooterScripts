@@ -77,9 +77,6 @@ void ALothair::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-
-	//This part is a jugaad and needs to be fixed
-	AttackAnim = false;
 	if (Attacking)
 	{
 		Axe->Attacking = true;
@@ -90,10 +87,9 @@ void ALothair::Tick(float DeltaTime)
 		Axe->Attacking = false;
 		CanMove = true;
 	}
-
+	
 	if (Blocking)
 	{
-		//Attacking = false;
 		BlockTimer = BlockTimer + DeltaTime;
 		if (BlockTimer > 0.450)
 		{
@@ -106,7 +102,6 @@ void ALothair::Tick(float DeltaTime)
 
 	if (Stunned)
 	{
-		//UE_LOG(LogTemp, Log, TEXT("Stunned"));
 		StunTimer = StunTimer + DeltaTime;
 		if (StunTimer >= StunTime)
 		{
@@ -120,30 +115,24 @@ void ALothair::Tick(float DeltaTime)
 	{
 		AttackTimer = AttackTimer + DeltaTime;
 
-		//UE_LOG(LogTemp, Warning, TEXT("%f"), AttackTimer)
-
 		if (Cancelling)
 		{
-			//UE_LOG(LogTemp, Warning, TEXT("Cancelling"));
 			if (AttackTimer >= 0.450)
 			{
 				Attacking = false;
 				AttackTimer = 0.f;
 				ComboChainString.Reset();
-				//UE_LOG(LogTemp, Warning, TEXT("Minimum Cancel time finished"));
 			}
 		}
 
+		//Morphing attacks together
 		if (Morphing)
 		{
-			//UE_LOG(LogTemp, Warning, TEXT("Morphing"));
 			if (AttackTimer >= 0.400)
 			{
-				//Attacking = false;
 				AttackTimer = 0.f;
 				Morphing = false;
 				ComboChainString.Reset();
-				//UE_LOG(LogTemp, Warning, TEXT("Minimum Morphing time finished"));
 			}
 		}
 
@@ -227,7 +216,6 @@ void ALothair::Fire()
 			AttackOn = true;
 			if (Attacking == false)
 			{
-				//UE_LOG(LogTemp, Warning, TEXT("Light Melee Attack"));
 				combocounter = 1;
 				ActivateLightAttack(combocounter);
 				ComboChain[0] = Light;
@@ -242,7 +230,6 @@ void ALothair::Fire()
 				{
 					if (ActiveAttack == LeftHeavyAttack && (ActiveAttackDirection == Right || ActiveAttackDirection == Top))
 					{
-						//UE_LOG(LogTemp, Warning, TEXT("Heavy Attack was morphed into light attack"));
 						Morphing = true;
 						ActivateLightAttack(combocounter);
 						ComboChain[0] = Light;
@@ -250,7 +237,6 @@ void ALothair::Fire()
 					}
 					if (ActiveAttack == RightHeavyAttack && (ActiveAttackDirection == Left || ActiveAttackDirection == Top))
 					{
-						//UE_LOG(LogTemp, Warning, TEXT("Heavy Attack was morphed into light attack"));
 						Morphing = true;
 						ActivateLightAttack(combocounter);
 						ComboChain[0] = Light;
@@ -258,7 +244,6 @@ void ALothair::Fire()
 					}
 					if (ActiveAttack == TopHeavyAttack && (ActiveAttackDirection == Right || ActiveAttackDirection == Left))
 					{
-						//UE_LOG(LogTemp, Warning, TEXT("Heavy Attack was morphed into light attack"));
 						Morphing = true;
 						ActivateLightAttack(combocounter);
 						ComboChain[0] = Light;
@@ -293,7 +278,6 @@ void ALothair::SecondaryFire()
 			checkzone = false;
 			ZoneTimer = 0;
 			ActivateZoneAttack();
-			//UE_LOG(LogTemp, Warning, TEXT("Zone Attack"));
 			return;
 		}
 
@@ -301,7 +285,6 @@ void ALothair::SecondaryFire()
 		if (ActiveMode == "Ranged")
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Fire Secondary Weapon"));
-			//SecondaryWeapon->Fire();
 			SecondaryWeapon->StartBurst();
 		}
 
@@ -322,7 +305,6 @@ void ALothair::SecondaryFire()
 			{
 				if (AttackTimer >= 0.650)
 				{
-					//	Attacking = false;
 					combocounter = combocounter + 1;
 					ComboChainString.AppendChar('H');
 					UE_LOG(LogTemp, Warning, TEXT("%s"), *ComboChainString);
@@ -334,7 +316,6 @@ void ALothair::SecondaryFire()
 						if (LLLString[i] == ComboChainString[i])
 						{
 							UE_LOG(LogTemp, Warning, TEXT("A potential Combo exists"));
-							//combocounter = combocounter + 1;
 							ActivateLightAttack(combocounter);
 						}
 						else
@@ -347,11 +328,11 @@ void ALothair::SecondaryFire()
 				{
 					if ((ActiveAttack == LeftHeavyAttack || ActiveAttack == RightHeavyAttack))
 					{
-						//UE_LOG(LogTemp, Warning, TEXT("Heavy Attack combo added"));
 						Attacking = false;
 						combocounter = combocounter + 1;
 						ComboChainString[combocounter] = "Heavy";
 						ActivateHeavyAttack();
+						UE_LOG(LogTemp, Warning, TEXT("L H H combo"));
 						UE_LOG(LogTemp, Warning, TEXT("%i"), combocounter);
 						return;
 					}
@@ -372,16 +353,73 @@ void ALothair::SecondaryFire()
 	}
 }
 
+
+bool ALothair::CheckParry()
+{
+	TArray<TEnumAsByte<EObjectTypeQuery>> traceObjectTypes;
+	traceObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Pawn));
+
+	// Ignore any specific actors
+	TArray<AActor*> ignoreActors;
+	// Ignore self or remove this line to not ignore any
+	ignoreActors.Init(this, 1);
+
+	TArray<AActor*> outActors;
+	// Total radius of the sphere
+	float radius = 250.0f;
+	// Sphere's spawn loccation within the world
+	FVector sphereSpawnLocation = GetActorLocation();
+	// Class that the sphere should hit against and include in the outActors array (Can be null)
+	UClass* seekClass = ALothair::StaticClass(); // NULL;
+	UKismetSystemLibrary::SphereOverlapActors(GetWorld(), sphereSpawnLocation, radius, traceObjectTypes, seekClass, ignoreActors, outActors);
+
+	// Optional: Use to have a visual representation of the SphereOverlapActors
+	DrawDebugSphere(GetWorld(), GetActorLocation(), radius, 12, FColor::Red, true, 10.0f);
+
+
+	// Finally iterate over the outActor array
+	for (AActor* overlappedActor : outActors) {
+		//UE_LOG(LogTemp, Log, TEXT("OverlappedActor: %s"), *overlappedActor->GetName());
+		ALothair* EnemyLothair = Cast<ALothair>(overlappedActor);
+
+		FRotator Rotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), EnemyLothair->GetActorLocation());
+		UE_LOG(LogTemp, Log, TEXT("The Yaw is : %i"), (int)Rotation.Yaw);
+
+		if (EnemyLothair->Attacking)
+		{
+			if (EnemyLothair->ActiveAttackName == "LeftLightAttack" || EnemyLothair->ActiveAttackName == "RightLightAttack" || EnemyLothair->ActiveAttackName == "TopLightAttack")
+			{
+				UE_LOG(LogTemp, Log, TEXT("It is a light attack"));
+				if (EnemyLothair->AttackTimer >= 0.400 && EnemyLothair->AttackTimer < 0.550)
+				{
+					UE_LOG(LogTemp, Log, TEXT("You parried in the 150ms before the attack landed"));
+					EnemyLothair->GetStunned();
+				}
+				else if (AttackTimer < 0.450)
+				{
+					UE_LOG(LogTemp, Log, TEXT("The attack was blocked but not parried"));
+				}
+			}
+			return true;
+		}
+		else
+		{
+			UE_LOG(LogTemp, Log, TEXT("OverlappedActor: %s is not attacking so parry unsuccessful only blocking"), *overlappedActor->GetName());
+			return false;
+		}
+	}
+
+	return false;
+}
+
 void ALothair::Reload()
 {
 	if (ActiveWeapon == 1)
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("Reload Primary"));
 		PrimaryWeapon->Reload();
 	}
 	if (ActiveWeapon == 2)
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("Reload Secondary"));
 		SecondaryWeapon->Reload();
 	}
 }
@@ -400,7 +438,6 @@ void ALothair::SetActiveWeaponSecondary()
 
 void ALothair::SwitchMode()
 {
-	//UE_LOG(LogTemp, Warning, TEXT("Switching Combat Mode"));
 	if (ActiveMode == "Ranged")
 	{
 		ActiveMode = "Combat";
@@ -433,21 +470,21 @@ void ALothair::ActivateLightAttack(int ComboCounter)
 	{
 		ActiveAttack = LeftLightAttack;
 		ActiveAttackName = "LeftLightAttack";
-		//ComboChain[combonumber] = LeftLightAttack;
+		ComboChain[combonumber] = LeftLightAttack;
 		PlayAnimMontage(AMLeftLightAttack, 1.f, NAME_None);
 	}
 	if (ActiveAttackDirection == Right)
 	{
 		ActiveAttack = RightLightAttack;
 		ActiveAttackName = "RightLightAttack";
-	//	ComboChain[combonumber] = RightLightAttack;
+		ComboChain[combonumber] = RightLightAttack;
 		PlayAnimMontage(AMLeftLightAttack, 1.f, NAME_None);
 	}
 	if (ActiveAttackDirection == Top)
 	{
 		ActiveAttack = TopLightAttack;
 		ActiveAttackName = "TopLightAttack";
-		//ComboChain[combonumber] = TopLightAttack;
+		ComboChain[combonumber] = TopLightAttack;
 		PlayAnimMontage(AMTopLightAttack, 1.f, NAME_None);
 	}
 
@@ -521,9 +558,6 @@ void ALothair::CancelAttack()
 		if (ActiveAttack == LeftHeavyAttack || ActiveAttack == RightHeavyAttack || ActiveAttack == TopHeavyAttack)
 		{
 			Cancelling = true;
-			// Time should still go to 450ms need to fix this
-
-
 			UE_LOG(LogTemp, Warning, TEXT("Heavy Attack Canceled"));
 		}
 	}
@@ -532,7 +566,7 @@ void ALothair::CancelAttack()
 void ALothair::ActivateGuardBreak()
 {
 	ActiveAttack = GuardBreak;
-	PlayAnimMontage(AMZoneAttack, 1.f, NAME_None);   //Change this to guardbreak animation
+	PlayAnimMontage(AMGuardBreak, 1.f, NAME_None); 
 }
 
 
@@ -551,64 +585,6 @@ void ALothair::ActivateBlockParry()
 	{
 		PlayAnimMontage(AMBlock, 1.f, NAME_None);
 	}
-}
-
-bool ALothair::CheckParry()
-{
-	TArray<TEnumAsByte<EObjectTypeQuery>> traceObjectTypes;
-	traceObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Pawn));
-
-	// Ignore any specific actors
-	TArray<AActor*> ignoreActors;
-	// Ignore self or remove this line to not ignore any
-	ignoreActors.Init(this, 1);
-
-	TArray<AActor*> outActors;
-	// Total radius of the sphere
-	float radius = 250.0f;
-	// Sphere's spawn loccation within the world
-	FVector sphereSpawnLocation = GetActorLocation();
-	// Class that the sphere should hit against and include in the outActors array (Can be null)
-	UClass* seekClass = ALothair::StaticClass(); // NULL;
-	UKismetSystemLibrary::SphereOverlapActors(GetWorld(), sphereSpawnLocation, radius, traceObjectTypes, seekClass, ignoreActors, outActors);
-
-	// Optional: Use to have a visual representation of the SphereOverlapActors
-	 DrawDebugSphere(GetWorld(), GetActorLocation(), radius, 12, FColor::Red, true, 10.0f);
-
-
-	// Finally iterate over the outActor array
-	for (AActor* overlappedActor : outActors) {
-		//UE_LOG(LogTemp, Log, TEXT("OverlappedActor: %s"), *overlappedActor->GetName());
-		ALothair* EnemyLothair = Cast<ALothair>(overlappedActor);
-
-		FRotator Rotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), EnemyLothair->GetActorLocation());
-		UE_LOG(LogTemp, Log, TEXT("The Yaw is : %i"), (int)Rotation.Yaw);
-
-		if (EnemyLothair->Attacking)
-		{
-			if (EnemyLothair->ActiveAttackName == "LeftLightAttack" || EnemyLothair->ActiveAttackName == "RightLightAttack" || EnemyLothair->ActiveAttackName == "TopLightAttack")
-			{
-				UE_LOG(LogTemp, Log, TEXT("It is a light attack"));
-				if (EnemyLothair->AttackTimer >= 0.400 && EnemyLothair->AttackTimer < 0.550)
-				{
-					UE_LOG(LogTemp, Log, TEXT("You parried in the 150ms before the attack landed"));
-					EnemyLothair->GetStunned();
-				}
-				else if(AttackTimer < 0.450)
-				{
-					UE_LOG(LogTemp, Log, TEXT("The attack was blocked but not parried"));
-				}
-			}
-			return true;
-		}
-		else
-		{
-			UE_LOG(LogTemp, Log, TEXT("OverlappedActor: %s is not attacking so parry unsuccessful only blocking"), *overlappedActor->GetName());
-			return false;
-		}
-	}
-
-	return false;
 }
 
 void ALothair::GetStunned()
