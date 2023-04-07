@@ -91,7 +91,7 @@ void ALothair::Tick(float DeltaTime)
 	if (Blocking)
 	{
 		BlockTimer = BlockTimer + DeltaTime;
-		if (BlockTimer > 0.450)
+		if (BlockTimer > BlockCoolDown)
 		{
 			Blocking = false;
 			BlockTimer = 0;
@@ -117,7 +117,7 @@ void ALothair::Tick(float DeltaTime)
 
 		if (Cancelling)
 		{
-			if (AttackTimer >= 0.450)
+			if (AttackTimer >= AttackCancelWindow)
 			{
 				Attacking = false;
 				AttackTimer = 0.f;
@@ -128,7 +128,7 @@ void ALothair::Tick(float DeltaTime)
 		//Morphing attacks together
 		if (Morphing)
 		{
-			if (AttackTimer >= 0.400)
+			if (AttackTimer >= MorphWindow)
 			{
 				AttackTimer = 0.f;
 				Morphing = false;
@@ -140,7 +140,7 @@ void ALothair::Tick(float DeltaTime)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("in block"));
 			AttackTimer = AttackTimer + DeltaTime;
-			if (AttackTimer >= 0.450)
+			if (AttackTimer >= BlockCoolDown)
 			{
 				AttackTimer = 0.f;
 				Blocking = false;
@@ -226,7 +226,7 @@ void ALothair::Fire()
 			if (Attacking == true)
 			{
 				//For Morhping
-				if (AttackTimer < 0.400)
+				if (AttackTimer < MorphWindow)
 				{
 					if (ActiveAttack == LeftHeavyAttack && (ActiveAttackDirection == Right || ActiveAttackDirection == Top))
 					{

@@ -89,6 +89,21 @@ public:
 	float InputDeadZone = 10.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Melee")
+	float LightAttackCoolDown = 0.45f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Melee")
+	float HeavyAttackCoolDown = 0.60f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Melee")
+	float AttackCancelWindow = 0.450f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Melee")
+	float BlockCoolDown = 0.450f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Melee")
+	float MorphWindow = 0.50f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Melee")
 	float StunTime = 3.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon", meta = (AllowPrivateAccess = "True"))
